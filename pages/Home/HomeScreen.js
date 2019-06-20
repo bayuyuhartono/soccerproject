@@ -1,4 +1,5 @@
 import React from "react";
+import axios from 'axios';
 import {
   FlatList,
   ActivityIndicator,
@@ -11,41 +12,6 @@ import {
 import firebase from "react-native-firebase";
 
 export default class HomeScreen extends React.Component {
-  //1
-  // async checkPermission() {
-  //   const enabled = await firebase.messaging().hasPermission();
-  //   if (enabled) {
-  //     this.getToken();
-  //   } else {
-  //     this.requestPermission();
-  //   }
-  // }
-
-  // //3
-  // async getToken() {
-  //   let fcmToken = await AsyncStorage.getItem("fcmToken");
-  //   if (!fcmToken) {
-  //     fcmToken = await firebase.messaging().getToken();
-  //     if (fcmToken) {
-  //       // user has a device token
-  //       await AsyncStorage.setItem("fcmToken", fcmToken);
-  //     }
-  //   }
-  // }
-
-  // //2
-  // async requestPermission() {
-  //   try {
-  //     await firebase.messaging().requestPermission();
-  //     // User has authorised
-  //     this.getToken();
-  //   } catch (error) {
-  //     // User has rejected permissions
-  //     console.log("permission rejected");
-  //   }
-  // }
-
-  //Remove listeners allocated in createNotificationListeners()
   componentWillUnmount() {
     this.notificationListener();
     this.notificationOpenedListener();
@@ -116,22 +82,14 @@ export default class HomeScreen extends React.Component {
   }
 
   getListCall() {
-    return fetch(
-      "https://apifootball.com/api/?action=get_standings&league_id=62&APIkey=8bf04e3397a3defe0895d9377b201c08a1bd351097c61bc7efabaa9a5c7d9038"
-    )
-      .then(response => response.json())
-      .then(responseJson => {
-        responseJson.sort(
+    return axios.get(`https://apiv2.apifootball.com/?action=get_standings&league_id=62&APIkey=b96fbe0d0ae829943a353137fd1825624a627d8ddce4ce3572a24ce58ee51d92`).then(response => {
+      this.setState({
+        isLoading: false,
+        dataSource: response.data.sort(
           (a, b) => a.overall_league_position - b.overall_league_position
-        ); //sort data json fetch
-        this.setState({
-          isLoading: false,
-          dataSource: responseJson
-        });
+        ) //sort data json fetch
       })
-      .catch(error => {
-        console.error(error);
-      });
+    })
   }
 
   render() {

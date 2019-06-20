@@ -11,15 +11,17 @@
     "test": "jest"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "frisbee": "^2.0.9",
     "react": "16.8.3",
-    "react-native": "^0.59.6",
+    "react-native": "^0.59.8",
     "react-native-elements": "^1.1.0",
     "react-native-firebase": "^5.3.1",
     "react-native-form": "^2.1.3",
     "react-native-gesture-handler": "^1.2.1",
     "react-native-loading-spinner-overlay": "^1.0.1",
     "react-native-sms-retriever": "^1.0.3",
+    "react-native-sqlite-storage": "^3.3.10",
     "react-native-tableview-simple": "^2.0.1",
     "react-native-vector-icons": "^6.4.2",
     "react-navigation": "^3.9.1"

@@ -9,7 +9,7 @@ import {
   ScrollView
 } from "react-native";
 import { Card, ListItem, Button, Icon } from "react-native-elements";
-
+import { Section } from "react-native-tableview-simple";
 ShowCurrentDate = () => {
   var date = new Date().getDate();
   var month = new Date().getMonth() + 1;
@@ -27,28 +27,31 @@ export default class AlignItemsBasics extends Component {
 
   constructor(props) {
     super(props);
-    this.getListCall = this.getListCall.bind(this);
     this.state = { isLoading: true };
+    this.state = {
+      blog: {},
+      comment: [],
+      errors: []
+    };
   }
 
   componentDidMount() {
-    this.getListCall();
-  }
+    const blogid = this.props.navigation.getParam("blogid");
 
-  getListCall() {
-    return axios
-      .get(`http://172.20.151.150/tasksman/public/api/projects`)
+    axios
+      .get(`http://172.20.151.150/tasksman/public/api/projects/${blogid}`)
       .then(response => {
         this.setState({
           isLoading: false,
-          dataSource: response.data.sort(
-            (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-          ) //sort data json fetch,
+          blog: response.data,
+          comment: response.data.tasks
         });
       });
   }
 
   render() {
+    const { blog, comment } = this.state;
+
     if (this.state.isLoading) {
       return (
         <View style={{ flex: 1, padding: 20 }}>
@@ -72,39 +75,29 @@ export default class AlignItemsBasics extends Component {
         >
           <View>
             <ScrollView style={styles.scrollContainer}>
-              <FlatList
-                data={this.state.dataSource}
-                renderItem={({ item }) => (
-                  <Card
-                    title={item.name}
-                    image={{
-                      uri:
-                        "https://d3vlf99qeg6bpx.cloudfront.net/content/uploads/2018/06/18081952/Willian-Chelsea.jpg"
-                    }}
-                  >
-                    <Text style={{ marginBottom: 10 }}>
-                      {item.description.substring(0, 30)}
-                    </Text>
-                    <Button
-                      icon={<Icon name="code" color="#ffffff" />}
-                      backgroundColor="#03A9F4"
-                      onPress={() => {
-                        this.props.navigation.navigate("MatchDetail", {
-                          blogid: `${item.id}`
-                        });
-                      }}
-                      buttonStyle={{
-                        borderRadius: 0,
-                        marginLeft: 0,
-                        marginRight: 0,
-                        marginBottom: 0
-                      }}
-                      title="VIEW NOW"
-                    />
-                  </Card>
-                )}
-                keyExtractor={(item, id) => id.toString()}
-              /> 
+              <Card
+                title={blog.name}
+                image={{
+                  uri:
+                    "https://d3vlf99qeg6bpx.cloudfront.net/content/uploads/2018/06/18081952/Willian-Chelsea.jpg"
+                }}
+              >
+                <Text style={{ marginBottom: 10 }}>{blog.description}</Text>
+              </Card>
+              <View style={{ height: 50, backgroundColor: "white" }}>
+                <Section header="Comment :" />
+              </View>
+              <Card>
+                <FlatList
+                  data={this.state.comment}
+                  renderItem={({ item }) => (
+                    <View key={item.title} style={styles.note}>
+                      <Text style={styles.noteText}>{item.title}</Text>
+                    </View>
+                  )}
+                  keyExtractor={({ title }, index) => title}
+                />
+              </Card>
             </ScrollView>
           </View>
         </View>

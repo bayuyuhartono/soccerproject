@@ -1,7 +1,16 @@
 import React, { Component } from "react";
-import { StyleSheet, ScrollView, ActivityIndicator, View } from "react-native";
-import { Text, Card, Button } from "react-native-elements";
-import firebase from "react-native-firebase";
+import {
+  ScrollView,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  View,
+  Text
+} from "react-native";
+import { Card, Button } from "react-native-elements";
+import Database from "../../src/database";
+
+const db = new Database();
 
 class DetailScreen extends Component {
   static navigationOptions = {
@@ -12,52 +21,48 @@ class DetailScreen extends Component {
     super();
     this.state = {
       isLoading: true,
-      board: {},
-      key: ""
+      product: {},
+      id: ""
     };
   }
 
   componentDidMount() {
-    const { navigation } = this.props;
-    const ref = firebase
-      .firestore()
-      .collection("boards")
-      .doc(JSON.parse(navigation.getParam("boardkey")));
-    ref.get().then(doc => {
-      if (doc.exists) {
-        this.setState({
-          board: doc.data(),
-          key: doc.id,
-          isLoading: false
+    this._subscribe = this.props.navigation.addListener("didFocus", () => {
+      const { navigation } = this.props;
+      db.productById(navigation.getParam("prodId"))
+        .then(data => {
+          console.log(data);
+          product = data;
+          this.setState({
+            product,
+            isLoading: false,
+            id: product.prodId
+          });
+        })
+        .catch(err => {
+          console.log(err);
+          this.setState = {
+            isLoading: false
+          };
         });
-      } else {
-        console.log("No such document!");
-      }
     });
   }
 
-  deleteBoard(key) {
+  deleteProduct(id) {
     const { navigation } = this.props;
     this.setState({
       isLoading: true
     });
-    firebase
-      .firestore()
-      .collection("boards")
-      .doc(key)
-      .delete()
-      .then(() => {
-        alert("Terhapus!");
-        this.setState({
-          isLoading: false
-        });
-        navigation.navigate("Repo");
+    db.deleteProduct(id)
+      .then(result => {
+        console.log(result);
+        this.props.navigation.goBack();
       })
-      .catch(error => {
-        console.error("Error removing document: ", error);
-        this.setState({
+      .catch(err => {
+        console.log(err);
+        this.setState = {
           isLoading: false
-        });
+        };
       });
   }
 
@@ -74,13 +79,30 @@ class DetailScreen extends Component {
         <Card style={styles.container}>
           <View style={styles.subContainer}>
             <View>
-              <Text h3>{this.state.board.title}</Text>
+              <Image
+                style={{ width: 150, height: 150 }}
+                source={{ uri: this.state.product.prodImage }}
+              />
             </View>
             <View>
-              <Text h5>{this.state.board.description}</Text>
+              <Text style={{ fontSize: 16 }}>
+                Product ID: {this.state.product.prodId}
+              </Text>
             </View>
             <View>
-              <Text h4>{this.state.board.author}</Text>
+              <Text style={{ fontSize: 16 }}>
+                Product Name: {this.state.product.prodName}
+              </Text>
+            </View>
+            <View>
+              <Text style={{ fontSize: 16 }}>
+                Product Desc: {this.state.product.prodDesc}
+              </Text>
+            </View>
+            <View>
+              <Text style={{ fontSize: 16 }}>
+                Product Price: {this.state.product.prodPrice}
+              </Text>
             </View>
           </View>
           <View style={styles.detailButton}>
@@ -91,7 +113,7 @@ class DetailScreen extends Component {
               title="Edit"
               onPress={() => {
                 this.props.navigation.navigate("RepoEdit", {
-                  boardkey: `${JSON.stringify(this.state.key)}`
+                  prodId: `${this.state.id}`
                 });
               }}
             />
@@ -103,7 +125,7 @@ class DetailScreen extends Component {
               color={"#FFFFFF"}
               leftIcon={{ name: "delete" }}
               title="Delete"
-              onPress={() => this.deleteBoard(this.state.key)}
+              onPress={() => this.deleteProduct(this.state.id)}
             />
           </View>
         </Card>

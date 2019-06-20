@@ -7,42 +7,48 @@ import {
   TextInput
 } from "react-native";
 import { Button } from "react-native-elements";
-import firebase from "react-native-firebase";
+import Database from "../../src/database";
+
+const db = new Database();
 
 class EditScreen extends Component {
   static navigationOptions = {
     title: "Edit Board"
   };
+
   constructor() {
     super();
     this.state = {
-      key: "",
-      isLoading: true,
-      title: "",
-      description: "",
-      author: ""
+      prodId: "",
+      prodName: "",
+      prodDesc: "",
+      prodImage: "",
+      prodPrice: "0",
+      isLoading: true
     };
   }
+
   componentDidMount() {
     const { navigation } = this.props;
-    const ref = firebase
-      .firestore()
-      .collection("boards")
-      .doc(JSON.parse(navigation.getParam("boardkey")));
-    ref.get().then(doc => {
-      if (doc.exists) {
-        const board = doc.data();
+    db.productById(navigation.getParam("prodId"))
+      .then(data => {
+        console.log(data);
+        const product = data;
         this.setState({
-          key: doc.id,
-          title: board.title,
-          description: board.description,
-          author: board.author,
+          prodId: product.prodId,
+          prodName: product.prodName,
+          prodDesc: product.prodDesc,
+          prodImage: product.prodImage,
+          prodPrice: product.prodPrice,
           isLoading: false
         });
-      } else {
-        console.log("No such document!");
-      }
-    });
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState = {
+          isLoading: false
+        };
+      });
   }
 
   updateTextInput = (text, field) => {
@@ -51,34 +57,29 @@ class EditScreen extends Component {
     this.setState(state);
   };
 
-  updateBoard() {
+  updateProduct() {
     this.setState({
       isLoading: true
     });
     const { navigation } = this.props;
-    const updateRef = firebase
-      .firestore()
-      .collection("boards")
-      .doc(this.state.key);
-    updateRef
-      .set({
-        title: this.state.title,
-        description: this.state.description,
-        author: this.state.author
-      })
-      .then(docRef => {
-        alert("Berhasil Edit!");
+    let data = {
+      prodId: this.state.prodId,
+      prodName: this.state.prodName,
+      prodDesc: this.state.prodDesc,
+      prodImage: this.state.prodImage,
+      prodPrice: this.state.prodPrice
+    };
+    db.updateProduct(data.prodId, data)
+      .then(result => {
+        console.log(result);
         this.setState({
-          key: "",
-          title: "",
-          description: "",
-          author: "",
           isLoading: false
         });
-        this.props.navigation.navigate("Repo");
+        this.props.navigation.state.params.onNavigateBack;
+        this.props.navigation.goBack();
       })
-      .catch(error => {
-        console.error("Error adding document: ", error);
+      .catch(err => {
+        console.log(err);
         this.setState({
           isLoading: false
         });
@@ -97,33 +98,48 @@ class EditScreen extends Component {
       <ScrollView style={styles.container}>
         <View style={styles.subContainer}>
           <TextInput
-            placeholder={"Title"}
-            value={this.state.title}
-            onChangeText={text => this.updateTextInput(text, "title")}
+            placeholder={"Product ID"}
+            value={this.state.prodId}
+            onChangeText={text => this.updateTextInput(text, "prodId")}
+          />
+        </View>
+        <View style={styles.subContainer}>
+          <TextInput
+            placeholder={"Product Name"}
+            value={this.state.prodName}
+            onChangeText={text => this.updateTextInput(text, "prodName")}
           />
         </View>
         <View style={styles.subContainer}>
           <TextInput
             multiline={true}
             numberOfLines={4}
-            placeholder={"Description"}
-            value={this.state.description}
-            onChangeText={text => this.updateTextInput(text, "description")}
+            placeholder={"Product Description"}
+            value={this.state.prodDesc}
+            onChangeText={text => this.updateTextInput(text, "prodDesc")}
           />
         </View>
         <View style={styles.subContainer}>
           <TextInput
-            placeholder={"Author"}
-            value={this.state.author}
-            onChangeText={text => this.updateTextInput(text, "author")}
+            placeholder={"Product Image"}
+            value={this.state.prodImage}
+            onChangeText={text => this.updateTextInput(text, "prodImage")}
+          />
+        </View>
+        <View style={styles.subContainer}>
+          <TextInput
+            placeholder={"Product Price"}
+            value={this.state.prodPrice}
+            keyboardType="numeric"
+            onChangeText={text => this.updateTextInput(text, "prodPrice")}
           />
         </View>
         <View style={styles.button}>
           <Button
             large
-            leftIcon={{ name: "update" }}
-            title="Update"
-            onPress={() => this.updateBoard()}
+            leftIcon={{ name: "save" }}
+            title="Save"
+            onPress={() => this.updateProduct()}
           />
         </View>
       </ScrollView>
@@ -143,15 +159,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 5,
     borderBottomWidth: 2,
-    borderBottomColor: "#CCCCCC"
+    borderBottomColor: '#CCCCCC',
   },
   activity: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    alignItems: "center",
-    justifyContent: "center"
+    alignItems: 'center',
+    justifyContent: 'center'
   }
-});
+})

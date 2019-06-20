@@ -7,7 +7,9 @@ import {
   TextInput
 } from "react-native";
 import { Button } from "react-native-elements";
-import firebase from "react-native-firebase";
+import Database from '../../src/database';
+
+const db = new Database();
 
 class AddScreen extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -18,92 +20,107 @@ class AddScreen extends Component {
 
   constructor() {
     super();
-    this.ref = firebase.firestore().collection("boards");
     this.state = {
-      title: "",
-      description: "",
-      author: "",
-      isLoading: false
+      prodId: '',
+      prodName: '',
+      prodDesc: '',
+      prodImage: '',
+      prodPrice: '0',
+      isLoading: false,
     };
   }
+  
   updateTextInput = (text, field) => {
     const state = this.state;
     state[field] = text;
     this.setState(state);
   };
 
-  saveBoard() {
+  saveProduct() {
     this.setState({
-      isLoading: true
+      isLoading: true,
     });
-    this.ref
-      .add({
-        title: this.state.title,
-        description: this.state.description,
-        author: this.state.author
-      })
-      .then(docRef => {
-        alert("Berhasil Tambah!");
-        this.setState({
-          title: "",
-          description: "",
-          author: "",
-          isLoading: false
-        });
-        this.props.navigation.goBack();
-      })
-      .catch(error => {
-        console.error("Error adding document: ", error);
-        this.setState({
-          isLoading: false
-        });
+    let data = {
+      prodId: this.state.prodId,
+      prodName: this.state.prodName,
+      prodDesc: this.state.prodDesc,
+      prodImage: this.state.prodImage,
+      prodPrice: this.state.prodPrice
+    }
+    db.addProduct(data).then((result) => {
+      console.log(result);
+      this.setState({
+        isLoading: false,
       });
+      // this.props.navigation.state.params.onNavigateBack;
+      this.props.navigation.goBack();
+    }).catch((err) => {
+      console.log(err);
+      this.setState({
+        isLoading: false,
+      });
+    })
   }
 
   render() {
-    if (this.state.isLoading) {
-      return (
+    if(this.state.isLoading){
+      return(
         <View style={styles.activity}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#0000ff"/>
         </View>
-      );
+      )
     }
     return (
       <ScrollView style={styles.container}>
         <View style={styles.subContainer}>
           <TextInput
-            placeholder={"Title"}
-            value={this.state.title}
-            onChangeText={text => this.updateTextInput(text, "title")}
+              placeholder={'Product ID'}
+              value={this.state.prodId}
+              onChangeText={(text) => this.updateTextInput(text, 'prodId')}
           />
         </View>
         <View style={styles.subContainer}>
           <TextInput
-            multiline={true}
-            numberOfLines={4}
-            placeholder={"Description"}
-            value={this.state.description}
-            onChangeText={text => this.updateTextInput(text, "description")}
+              placeholder={'Product Name'}
+              value={this.state.prodName}
+              onChangeText={(text) => this.updateTextInput(text, 'prodName')}
           />
         </View>
         <View style={styles.subContainer}>
           <TextInput
-            placeholder={"Author"}
-            value={this.state.author}
-            onChangeText={text => this.updateTextInput(text, "author")}
+              multiline={true}
+              numberOfLines={4}
+              placeholder={'Product Description'}
+              value={this.state.prodDesc}
+              onChangeText={(text) => this.updateTextInput(text, 'prodDesc')}
+          />
+        </View>
+        <View style={styles.subContainer}>
+          <TextInput
+              placeholder={'Product Image'}
+              value={this.state.prodImage}
+              onChangeText={(text) => this.updateTextInput(text, 'prodImage')}
+          />
+        </View>
+        <View style={styles.subContainer}>
+          <TextInput
+              placeholder={'Product Price'}
+              value={this.state.prodPrice}
+              keyboardType='numeric'
+              onChangeText={(text) => this.updateTextInput(text, 'prodPrice')}
           />
         </View>
         <View style={styles.button}>
           <Button
             large
-            leftIcon={{ name: "save" }}
-            title="Save"
-            onPress={() => this.saveBoard()}
-          />
+            leftIcon={{name: 'save'}}
+            title='Save'
+            onPress={() => this.saveProduct()} />
         </View>
       </ScrollView>
     );
   }
+
 }
 
 export default AddScreen;
@@ -118,15 +135,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 5,
     borderBottomWidth: 2,
-    borderBottomColor: "#CCCCCC"
+    borderBottomColor: '#CCCCCC',
   },
   activity: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    alignItems: "center",
-    justifyContent: "center"
+    alignItems: 'center',
+    justifyContent: 'center'
   }
-});
+})

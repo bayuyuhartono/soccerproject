@@ -7,6 +7,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import HomeScreen from "../pages/Home/HomeScreen";
 import MatchScreen from "../pages/Match/MatchScreen";
+import MatchDetScreen from "../pages/Match/MatchDetScreen";
 import RepoScreen from "../pages/Repo/RepoScreen";
 import AddScreen from "../pages/Repo/AddScreen";
 import DetailScreen from "../pages/Repo/DetailScreen";
@@ -18,7 +19,8 @@ const HomeStack = createStackNavigator({
 });
  
 const MatchStack = createStackNavigator({
-  Match: MatchScreen
+  Match: MatchScreen,
+  MatchDetail: MatchDetScreen
 });
 
 const RepoStack = createStackNavigator({

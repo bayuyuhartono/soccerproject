@@ -9,7 +9,9 @@ import {
   TouchableOpacity
 } from "react-native";
 import { Button } from "react-native-elements";
-import firebase from "react-native-firebase";
+import Database from '../../src/database';
+
+const db = new Database();
 
 class RepoScreen extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -29,34 +31,33 @@ class RepoScreen extends Component {
 
   constructor() {
     super();
-    this.ref = firebase.firestore().collection("boards");
-    this.unsubscribe = null;
     this.state = {
       isLoading: true,
-      boards: []
+      products: [],
+      notFound: 'Products not found.\nPlease click (+) button to add it.'
     };
   }
 
-  onCollectionUpdate = querySnapshot => {
-    const boards = [];
-    querySnapshot.forEach(doc => {
-      const { title, description, author } = doc.data();
-      boards.push({
-        key: doc.id,
-        doc, // DocumentSnapshot
-        title,
-        description,
-        author
+  getProducts() {
+    let products = [];
+    db.listProduct().then((data) => {
+      products = data;
+      this.setState({
+        products,
+        isLoading: false,
       });
-    });
-    this.setState({
-      boards,
-      isLoading: false
-    });
-  };
+    }).catch((err) => {
+      console.log(err);
+      this.setState = {
+        isLoading: false
+      }
+    })
+  }
 
   componentDidMount() {
-    this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate);
+    this._subscribe = this.props.navigation.addListener('didFocus', () => {
+      this.getProducts();
+    });
   }
 
   render() {
@@ -72,21 +73,21 @@ class RepoScreen extends Component {
       <View style={styles.container}>
         <ScrollView style={styles.scrollContainer}>
           <FlatList
-            data={this.state.boards}
+            data={this.state.products}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
                   this.props.navigation.navigate("RepoDetail", {
-                    boardkey: `${JSON.stringify(item.key)}`
+                    prodId: `${item.prodId}`, 
                   });
                 }}
               >
-                <View key={item.title} style={styles.note}>
-                  <Text style={styles.noteText}>{item.title}</Text>
+                <View key={item.prodId} style={styles.note}>
+                  <Text style={styles.noteText}>{item.prodName}</Text>
                 </View>
               </TouchableOpacity>
             )}
-            keyExtractor={({ title }, index) => title}
+            keyExtractor={({ prodId }, index) => prodId}
           />
         </ScrollView>
       </View>

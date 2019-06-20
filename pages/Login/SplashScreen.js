@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, AsyncStorage } from "react-native";
+import { View, Text } from "react-native";
 import firebase from "react-native-firebase";
 
 class SplashScreen extends React.Component {
@@ -18,19 +18,9 @@ class SplashScreen extends React.Component {
 
   // Fetch the token from storage then navigate to our appropriate place
   _bootstrapAsync = async () => {
-    const data = await this.performTimeConsumingTask();
-    const userToken = await AsyncStorage.getItem("userToken");
-
-    // This will switch to the App screen or Auth screen and this loading
-    // screen will be unmounted and thrown away.
-    // if (data !== null) {
-    //   this.props.navigation.navigate(userToken ? "App" : "Auth");
-    // }
-    
     firebase.auth().onAuthStateChanged(user => {
       this.props.navigation.navigate(user ? "App" : "Auth");
     });
-    
   };
 
   render() {
