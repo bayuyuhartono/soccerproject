@@ -6,7 +6,9 @@ import {
   Text,
   View,
   StyleSheet,
-  ScrollView
+  ScrollView,
+  TextInput,
+  TouchableOpacity
 } from "react-native";
 import { Card, ListItem, Button, Icon } from "react-native-elements";
 import { Section } from "react-native-tableview-simple";
@@ -18,7 +20,7 @@ ShowCurrentDate = () => {
   Alert.alert(date + "-" + month + "-" + year);
 };
 
-export default class AlignItemsBasics extends Component {
+export default class MatchDetScreen extends Component {
   static navigationOptions = () => {
     return {
       title: "News"
@@ -29,28 +31,66 @@ export default class AlignItemsBasics extends Component {
     super(props);
     this.state = { isLoading: true };
     this.state = {
-      blog: {},
+      InputComment: "",
+      blogid: "",
+      itemblog: {},
       comment: [],
       errors: []
     };
+    this.handleAddNewComment = this.handleAddNewComment.bind(this);
   }
 
   componentDidMount() {
-    const blogid = this.props.navigation.getParam("blogid");
+    blogid = this.props.navigation.getParam("blogid");
+
+    axios.get(`https://bayu.space/api/projects/${blogid}`).then(response => {
+      this.setState({
+        isLoading: false,
+        itemblog: response.data,
+        comment: response.data.tasks
+      });
+    });
+  }
+
+  handleAddNewComment(event) {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append("title", this.state.InputComment);
+    formData.append("username", "= User =");
+    formData.append("project_id", blogid);
+
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data"
+      }
+    };
 
     axios
-      .get(`http://172.20.151.150/tasksman/public/api/projects/${blogid}`)
+      .post("https://bayu.space/api/tasks", formData, config)
       .then(response => {
         this.setState({
-          isLoading: false,
-          blog: response.data,
-          comment: response.data.tasks
+          InputComment: ""
+        });
+        this.setState(prevState => ({
+          comment: prevState.comment.concat(response.data)
+        }));
+      })
+      .catch(error => {
+        this.setState({
+          errors: error.response.data.errors
         });
       });
   }
 
+  handleInputComment = val => {
+    this.setState({
+      InputComment: val
+    });
+  };
+
   render() {
-    const { blog, comment } = this.state;
+    const { itemblog } = this.state;
 
     if (this.state.isLoading) {
       return (
@@ -61,9 +101,6 @@ export default class AlignItemsBasics extends Component {
     }
 
     return (
-      // Try setting `alignItems` to 'flex-start'
-      // Try setting `justifyContent` to `flex-end`.
-      // Try setting `flexDirection` to `row`.
       <ScrollView>
         <View
           style={{
@@ -76,22 +113,37 @@ export default class AlignItemsBasics extends Component {
           <View>
             <ScrollView style={styles.scrollContainer}>
               <Card
-                title={blog.name}
+                title={itemblog.name}
                 image={{
-                  uri:
-                    "https://d3vlf99qeg6bpx.cloudfront.net/content/uploads/2018/06/18081952/Willian-Chelsea.jpg"
+                  uri: `${itemblog.img_cover}`
                 }}
               >
-                <Text style={{ marginBottom: 10 }}>{blog.description}</Text>
+                <Text style={{ marginBottom: 10 }}>{itemblog.description}</Text>
               </Card>
+
+              <View style={styles.styComment}>
+                <TextInput
+                  style={styles.styTextComment}
+                  placeholder={"Write Comment"}
+                  value={this.state.InputComment}
+                  onChangeText={this.handleInputComment}
+                  required
+                />
+                <TouchableOpacity onPress={this.handleAddNewComment} style={styles.styButtComment}>
+                  <Text>Add</Text>
+                </TouchableOpacity>
+              </View>
+
               <View style={{ height: 50, backgroundColor: "white" }}>
                 <Section header="Comment :" />
               </View>
+
               <Card>
                 <FlatList
                   data={this.state.comment}
                   renderItem={({ item }) => (
                     <View key={item.title} style={styles.note}>
+                      <Text style={styles.noteTextName}>{item.username}</Text>
                       <Text style={styles.noteText}>{item.title}</Text>
                     </View>
                   )}
@@ -133,18 +185,35 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "#ededed"
   },
+  noteTextName: {
+    paddingLeft: 20,
+    borderLeftColor: "#3366cc",
+    fontWeight: "bold"
+  },
   noteText: {
     paddingLeft: 20,
     borderLeftColor: "#3366cc"
   },
-  noteDelete: {
+  styComment: {
+    position: "relative",
+    padding: 5,
+    paddingRight: 100,
+    borderBottomWidth: 2,
+    borderBottomColor: "#ededed"
+  },
+  styButtComment: {
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#2980b9",
+    backgroundColor: "#93a5c1",
     padding: 10,
     top: 10,
     bottom: 10,
     right: 10
+  },
+  styTextComment: {
+    paddingLeft: 20,
+    borderLeftWidth: 10,
+    borderLeftColor: "#93a5c1"
   }
 });

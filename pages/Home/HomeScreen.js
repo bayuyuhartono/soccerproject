@@ -82,7 +82,7 @@ export default class HomeScreen extends React.Component {
   }
 
   getListCall() {
-    return axios.get(`https://apiv2.apifootball.com/?action=get_standings&league_id=62&APIkey=b96fbe0d0ae829943a353137fd1825624a627d8ddce4ce3572a24ce58ee51d92`).then(response => {
+    return axios.get(`https://bayu.space/api/standings`).then(response => {
       this.setState({
         isLoading: false,
         dataSource: response.data.sort(

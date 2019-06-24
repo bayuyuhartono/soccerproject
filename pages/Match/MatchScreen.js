@@ -37,7 +37,7 @@ export default class AlignItemsBasics extends Component {
 
   getListCall() {
     return axios
-      .get(`http://172.20.151.150/tasksman/public/api/projects`)
+      .get(`https://bayu.space/api/projects`)
       .then(response => {
         this.setState({
           isLoading: false,
@@ -78,8 +78,7 @@ export default class AlignItemsBasics extends Component {
                   <Card
                     title={item.name}
                     image={{
-                      uri:
-                        "https://d3vlf99qeg6bpx.cloudfront.net/content/uploads/2018/06/18081952/Willian-Chelsea.jpg"
+                      uri: `${item.img_cover}`
                     }}
                   >
                     <Text style={{ marginBottom: 10 }}>
