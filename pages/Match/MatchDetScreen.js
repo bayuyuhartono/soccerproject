@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import firebase from 'react-native-firebase';
 import {
   FlatList,
   ActivityIndicator,
@@ -35,7 +36,8 @@ export default class MatchDetScreen extends Component {
       blogid: "",
       itemblog: {},
       comment: [],
-      errors: []
+      errors: [],
+      itemBio: {}
     };
     this.handleAddNewComment = this.handleAddNewComment.bind(this);
   }
@@ -50,14 +52,26 @@ export default class MatchDetScreen extends Component {
         comment: response.data.tasks
       });
     });
+
+    const { currentUser } = firebase.auth()
+    this.setState({ currentUser })
+
+    axios.get(`https://bayu.space/api/biodata/${currentUser.email}`).then(response => {
+      this.setState({
+        itemBio: response.data
+      });
+    });
+
   }
 
   handleAddNewComment(event) {
     event.preventDefault();
 
+    const { itemBio } = this.state;
+        
     const formData = new FormData();
     formData.append("title", this.state.InputComment);
-    formData.append("username", "= User =");
+    formData.append("username", itemBio.nickname);
     formData.append("project_id", blogid);
 
     const config = {

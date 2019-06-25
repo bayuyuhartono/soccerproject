@@ -11,7 +11,8 @@ import Logo from "../../src/components/Logo";
 import { StackActions, NavigationActions } from "react-navigation";
 import Frisbee from "frisbee";
 import SmsRetriever from "react-native-sms-retriever";
-import firebase from 'react-native-firebase'
+import firebase from "react-native-firebase";
+import axios from "axios";
 
 const api = new Frisbee({
   baseURI: "http://172.20.151.203/soccer_api/public/",
@@ -32,14 +33,41 @@ export default class SignupScreen extends React.Component {
     header: null
   };
 
-  state = { email: '', password: '', errorMessage: null }
+  state = {
+    email: "",
+    password: "",
+    name: "",
+    nickname: "",
+    errorMessage: null
+  };
+
   handleSignUp = () => {
+    
     firebase
       .auth()
       .createUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then(() => this.props.navigation.navigate('App'))
-      .catch(error => this.setState({ errorMessage: error.message }))
-  }
+      .catch(error => this.setState({ errorMessage: error.message }));
+
+    const formData = new FormData();
+    formData.append("id", this.state.email);
+    formData.append("name", this.state.name);
+    formData.append("nickname", this.state.nickname);
+
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data"
+      }
+    };
+
+    axios
+      .post("https://bayu.space/api/biodata", formData, config)
+      .then(() => this.props.navigation.navigate("App"))
+      .catch(error => {
+        this.setState({
+          errors: error.response.data.errors
+        });
+      });
+  };
 
   // Get the phone number (first gif)
   _onPhoneNumberPressed = async () => {
@@ -93,7 +121,6 @@ export default class SignupScreen extends React.Component {
             actions: [NavigationActions.navigate({ routeName: "OTP" })]
           })
         );
-        
       } catch (err) {
         // <https://github.com/niftylettuce/react-native-loading-spinner-overlay/issues/30#issuecomment-276845098>
         setTimeout(() => {
@@ -117,7 +144,7 @@ export default class SignupScreen extends React.Component {
             selectionColor="#fff"
             keyboardType="email-address"
             onChangeText={email => this.setState({ email })}
-            value={this.state.email} 
+            value={this.state.email}
           />
 
           <TextInput
@@ -130,6 +157,24 @@ export default class SignupScreen extends React.Component {
             value={this.state.password}
           />
 
+          <TextInput
+            style={styles.inputBox}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            placeholder="Name"
+            placeholderTextColor="#ffffff"
+            onChangeText={name => this.setState({ name })}
+            value={this.state.name}
+          />
+
+          <TextInput
+            style={styles.inputBox}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            placeholder="Nickname"
+            placeholderTextColor="#ffffff"
+            onChangeText={nickname => this.setState({ nickname })}
+            value={this.state.nickname}
+          />
+
           <TouchableOpacity onPress={this.handleSignUp} style={styles.button}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
@@ -138,7 +183,9 @@ export default class SignupScreen extends React.Component {
         <View style={styles.signupTextCont}>
           <Text style={styles.signupText}>Have an account yet?</Text>
 
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('SignIn')}>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate("SignIn")}
+          >
             <Text style={styles.signupButton}> Login</Text>
           </TouchableOpacity>
         </View>

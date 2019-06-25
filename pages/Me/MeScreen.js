@@ -1,21 +1,29 @@
 import React from "react";
 import { StyleSheet, Button, Text, View } from "react-native";
-import firebase from 'react-native-firebase'
+import firebase from 'react-native-firebase';
+import axios from "axios";
 
 export default class MatchScreen extends React.Component {
 
-  state = { currentUser: null };
+  state = { currentUser: null, itemBio: {} };
 
   componentDidMount() {
     const { currentUser } = firebase.auth()
     this.setState({ currentUser })
+
+    axios.get(`https://bayu.space/api/biodata/${currentUser.email}`).then(response => {
+      this.setState({
+        itemBio: response.data
+      });
+    });
+
 }
 
   render() {
-    const { currentUser } = this.state;
+    const { itemBio } = this.state;
     return (
       <View style={styles.container}>
-        <Text>Hi {currentUser && currentUser.email}!</Text>
+        <Text>Hi {itemBio.nickname}!</Text>
         <Button
          title="Sign out"
          onPress={() => firebase.auth().signOut()} 
