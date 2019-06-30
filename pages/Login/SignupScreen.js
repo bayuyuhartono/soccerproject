@@ -9,18 +9,10 @@ import {
 } from "react-native";
 import Logo from "../../src/components/Logo";
 import { StackActions, NavigationActions } from "react-navigation";
-import Frisbee from "frisbee";
 import SmsRetriever from "react-native-sms-retriever";
 import firebase from "react-native-firebase";
 import axios from "axios";
-
-const api = new Frisbee({
-  baseURI: "http://172.20.151.203/soccer_api/public/",
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json"
-  }
-});
+import * as dataws from "../../src/linknetwork.json";
 
 export default class SignupScreen extends React.Component {
   // hide navbartop
@@ -60,7 +52,7 @@ export default class SignupScreen extends React.Component {
     };
 
     axios
-      .post("https://bayu.space/api/biodata", formData, config)
+      .post(dataws.auth.postregis, formData, config)
       .then(() => this.props.navigation.navigate("App"))
       .catch(error => {
         this.setState({

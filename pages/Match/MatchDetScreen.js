@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import firebase from 'react-native-firebase';
+import firebase from "react-native-firebase";
 import {
   FlatList,
   ActivityIndicator,
@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import { Card, ListItem, Button, Icon } from "react-native-elements";
 import { Section } from "react-native-tableview-simple";
+import * as dataws from "../../src/linknetwork.json";
+
 ShowCurrentDate = () => {
   var date = new Date().getDate();
   var month = new Date().getMonth() + 1;
@@ -45,7 +47,7 @@ export default class MatchDetScreen extends Component {
   componentDidMount() {
     blogid = this.props.navigation.getParam("blogid");
 
-    axios.get(`https://bayu.space/api/projects/${blogid}`).then(response => {
+    axios.get(dataws.blog.getblog + blogid).then(response => {
       this.setState({
         isLoading: false,
         itemblog: response.data,
@@ -53,22 +55,21 @@ export default class MatchDetScreen extends Component {
       });
     });
 
-    const { currentUser } = firebase.auth()
-    this.setState({ currentUser })
+    const { currentUser } = firebase.auth();
+    this.setState({ currentUser });
 
-    axios.get(`https://bayu.space/api/biodata/${currentUser.email}`).then(response => {
+    axios.get(dataws.biodata.getbio + currentUser.email).then(response => {
       this.setState({
         itemBio: response.data
       });
     });
-
   }
 
   handleAddNewComment(event) {
     event.preventDefault();
 
     const { itemBio } = this.state;
-        
+
     const formData = new FormData();
     formData.append("title", this.state.InputComment);
     formData.append("username", itemBio.nickname);
@@ -81,7 +82,7 @@ export default class MatchDetScreen extends Component {
     };
 
     axios
-      .post("https://bayu.space/api/tasks", formData, config)
+      .post(datws.blog.postcomment, formData, config)
       .then(response => {
         this.setState({
           InputComment: ""
@@ -143,7 +144,10 @@ export default class MatchDetScreen extends Component {
                   onChangeText={this.handleInputComment}
                   required
                 />
-                <TouchableOpacity onPress={this.handleAddNewComment} style={styles.styButtComment}>
+                <TouchableOpacity
+                  onPress={this.handleAddNewComment}
+                  style={styles.styButtComment}
+                >
                   <Text>Add</Text>
                 </TouchableOpacity>
               </View>

@@ -10,6 +10,7 @@ import {
   Alert
 } from "react-native";
 import firebase from "react-native-firebase";
+import * as dataws from "../../src/linknetwork.json";
 
 export default class HomeScreen extends React.Component {
   componentWillUnmount() {
@@ -82,7 +83,7 @@ export default class HomeScreen extends React.Component {
   }
 
   getListCall() {
-    return axios.get(`https://bayu.space/api/standings`).then(response => {
+    return axios.get(dataws.football.getstandings).then(response => {
       this.setState({
         isLoading: false,
         dataSource: response.data.sort(

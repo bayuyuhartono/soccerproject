@@ -9,6 +9,7 @@ import {
   ScrollView
 } from "react-native";
 import { Card, ListItem, Button, Icon } from "react-native-elements";
+import * as dataws from "../../src/linknetwork.json";
 
 ShowCurrentDate = () => {
   var date = new Date().getDate();
@@ -37,7 +38,7 @@ export default class AlignItemsBasics extends Component {
 
   getListCall() {
     return axios
-      .get(`https://bayu.space/api/projects`)
+      .get(dataws.blog.getblog)
       .then(response => {
         this.setState({
           isLoading: false,
