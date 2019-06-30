@@ -14,6 +14,9 @@ import {
 import { Card, ListItem, Button, Icon } from "react-native-elements";
 import { Section } from "react-native-tableview-simple";
 import * as dataws from "../../src/linknetwork.json";
+import Database from "../../src/database";
+
+const db = new Database();
 
 ShowCurrentDate = () => {
   var date = new Date().getDate();
@@ -39,9 +42,16 @@ export default class MatchDetScreen extends Component {
       itemblog: {},
       comment: [],
       errors: [],
-      itemBio: {}
+      itemBio: {},
+      prodId: "",
+      prodName: "",
+      prodDesc: "",
+      prodImage: "",
+      prodPrice: "0",
+      isLoading: false
     };
     this.handleAddNewComment = this.handleAddNewComment.bind(this);
+    this.handleSaveOffline = this.handleSaveOffline.bind(this);
   }
 
   componentDidMount() {
@@ -58,11 +68,35 @@ export default class MatchDetScreen extends Component {
     const { currentUser } = firebase.auth();
     this.setState({ currentUser });
 
-    axios.get(dataws.biodata.getbio + currentUser.email).then(response => {
-      this.setState({
-        itemBio: response.data
+    axios
+      .get(dataws.biodata.getbio + currentUser.email)
+      .then(response => {
+        this.setState({
+          itemBio: response.data
+        });
       });
-    });
+  }
+
+  handleSaveOffline(event) {
+    event.preventDefault();
+
+    const { itemblog } = this.state;
+
+    let data = {
+      prodId: blogid,
+      prodName: itemblog.name,
+      prodDesc: itemblog.description,
+      prodImage: itemblog.name,
+      prodPrice: itemblog.name
+    };
+
+    db.addProduct(data)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   handleAddNewComment(event) {
@@ -82,7 +116,7 @@ export default class MatchDetScreen extends Component {
     };
 
     axios
-      .post(datws.blog.postcomment, formData, config)
+      .post(dataws.blog.postcomment, formData, config)
       .then(response => {
         this.setState({
           InputComment: ""
@@ -127,6 +161,9 @@ export default class MatchDetScreen extends Component {
         >
           <View>
             <ScrollView style={styles.scrollContainer}>
+              <TouchableOpacity onPress={this.handleSaveOffline}>
+                <Text>Simpan Offline</Text>
+              </TouchableOpacity>
               <Card
                 title={itemblog.name}
                 image={{

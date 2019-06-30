@@ -24,7 +24,6 @@ export default class MeScreen extends React.Component {
     const { itemBio } = this.state;
     return (
       <View style={styles.container}>
-        <Text>Hi {dataws.biodata.getbio}!</Text>
         <Text>Hi {itemBio.nickname}!</Text>
         <Button title="Sign out" onPress={() => firebase.auth().signOut()} />
       </View>
