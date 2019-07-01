@@ -1,13 +1,12 @@
 import React, { Component } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Image,
   ActivityIndicator,
+  Text,
   View,
-  Text
+  StyleSheet,
+  ScrollView
 } from "react-native";
-import { Card, Button } from "react-native-elements";
+import { Card, Button, Icon } from "react-native-elements";
 import Database from "../../src/database";
 
 const db = new Database();
@@ -67,96 +66,112 @@ class DetailScreen extends Component {
   }
 
   render() {
+
     if (this.state.isLoading) {
       return (
-        <View style={styles.activity}>
-          <ActivityIndicator size="large" color="#0000ff" />
+        <View style={{ flex: 1, padding: 20 }}>
+          <ActivityIndicator />
         </View>
       );
     }
+
     return (
       <ScrollView>
-        <Card style={styles.container}>
-          <View style={styles.subContainer}>
-            <View>
-              <Image
-                style={{ width: 150, height: 150 }}
-                source={{ uri: this.state.product.prodImage }}
-              />
-            </View>
-            <View>
-              <Text style={{ fontSize: 16 }}>
-                Product ID: {this.state.product.prodId}
-              </Text>
-            </View>
-            <View>
-              <Text style={{ fontSize: 16 }}>
-                Product Name: {this.state.product.prodName}
-              </Text>
-            </View>
-            <View>
-              <Text style={{ fontSize: 16 }}>
-                Product Desc: {this.state.product.prodDesc}
-              </Text>
-            </View>
-            <View>
-              <Text style={{ fontSize: 16 }}>
-                Product Price: {this.state.product.prodPrice}
-              </Text>
-            </View>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "stretch"
+          }}
+        >
+          <View>
+            <ScrollView style={styles.scrollContainer}>
+              <Card
+                title={this.state.product.prodName}
+              >
+                <Text style={{ marginBottom: 10 }}>{this.state.product.prodDesc}</Text>
+                <Button
+                      icon={<Icon name="code" color="#0292d4" />}
+                      color="#03A9F4"
+                      onPress={() => this.deleteProduct(this.state.id)}
+                      buttonStyle={{
+                        borderRadius: 0,
+                        marginLeft: 0,
+                        marginRight: 0,
+                        marginBottom: 0
+                      }}
+                      type="outline"
+                      title="HAPUS"
+                    />  
+              </Card>      
+            </ScrollView>
           </View>
-          <View style={styles.detailButton}>
-            <Button
-              large
-              backgroundColor={"#CCCCCC"}
-              leftIcon={{ name: "edit" }}
-              title="Edit"
-              onPress={() => {
-                this.props.navigation.navigate("RepoEdit", {
-                  prodId: `${this.state.id}`
-                });
-              }}
-            />
-          </View>
-          <View style={styles.detailButton}>
-            <Button
-              large
-              backgroundColor={"#999999"}
-              color={"#FFFFFF"}
-              leftIcon={{ name: "delete" }}
-              title="Delete"
-              onPress={() => this.deleteProduct(this.state.id)}
-            />
-          </View>
-        </Card>
+        </View>
       </ScrollView>
     );
   }
+
 }
 
 export default DetailScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20
+    flex: 1
   },
-  subContainer: {
-    flex: 1,
-    paddingBottom: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: "#CCCCCC"
-  },
-  activity: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
+  header: {
+    backgroundColor: "#3366cc",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: "#ddd"
   },
-  detailButton: {
-    marginTop: 10
+  textheader: {
+    color: "white",
+    fontSize: 18,
+    paddingTop: 15,
+    paddingBottom: 15
+  },
+  scrollContainer: {
+    flex: 1
+  },
+  note: {
+    position: "relative",
+    padding: 10,
+    paddingRight: 100,
+    borderBottomWidth: 2,
+    borderBottomColor: "#ededed"
+  },
+  noteTextName: {
+    paddingLeft: 20,
+    borderLeftColor: "#3366cc",
+    fontWeight: "bold"
+  },
+  noteText: {
+    paddingLeft: 20,
+    borderLeftColor: "#3366cc"
+  },
+  styComment: {
+    position: "relative",
+    padding: 5,
+    paddingRight: 100,
+    borderBottomWidth: 2,
+    borderBottomColor: "#ededed"
+  },
+  styButtComment: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#93a5c1",
+    padding: 10,
+    top: 10,
+    bottom: 10,
+    right: 10
+  },
+  styTextComment: {
+    paddingLeft: 20,
+    borderLeftWidth: 10,
+    borderLeftColor: "#93a5c1"
   }
 });

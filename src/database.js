@@ -77,16 +77,17 @@ export default class Database {
       const products = [];
       this.initDB().then((db) => {
         db.transaction((tx) => {
-          tx.executeSql('SELECT p.prodId, p.prodName, p.prodImage FROM Product p', []).then(([tx,results]) => {
+          tx.executeSql('SELECT p.prodId, p.prodName, p.prodDesc, p.prodImage FROM Product p', []).then(([tx,results]) => {
             console.log("Query completed");
             var len = results.rows.length;
             for (let i = 0; i < len; i++) {
               let row = results.rows.item(i);
               console.log(`Prod ID: ${row.prodId}, Prod Name: ${row.prodName}`)
-              const { prodId, prodName, prodImage } = row;
+              const { prodId, prodName, prodDesc, prodImage } = row;
               products.push({
                 prodId,
                 prodName,
+                prodDesc,
                 prodImage
               });
             }

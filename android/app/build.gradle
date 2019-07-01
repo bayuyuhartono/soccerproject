@@ -142,6 +142,8 @@ android {
 }
 
 dependencies {
+    implementation project(':rn-fetch-blob')
+    implementation project(':react-native-firebase')
     implementation project(':react-native-get-sms-android')
     /* ----------------------------
     *    REACT NATIVE FIREBASE

@@ -9,11 +9,14 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  ToastAndroid,
+  PermissionsAndroid
 } from "react-native";
-import { Card, ListItem, Button, Icon } from "react-native-elements";
+import { Card, Button, Icon } from "react-native-elements";
 import { Section } from "react-native-tableview-simple";
 import * as dataws from "../../src/linknetwork.json";
+import RNFetchBlob from "rn-fetch-blob";
 import Database from "../../src/database";
 
 const db = new Database();
@@ -77,7 +80,44 @@ export default class MatchDetScreen extends Component {
       });
   }
 
-  handleSaveOffline(event) {
+  actualDownload = () => {
+    const { itemblog } = this.state;
+    this.setState({
+      progress: 0,
+      loading: true
+    });
+    let dirs = RNFetchBlob.fs.dirs;
+    RNFetchBlob.config({
+      // add this option that makes response data to be stored as a file,
+      // this is much more performant.
+      path: "../../" + itemblog.name + ".jpg",
+      fileCache: true
+    })
+      .fetch(
+        "GET",
+        itemblog.img_cover,
+        {
+          //some headers ..
+        }
+      )
+      .progress((received, total) => {
+        console.log("progress", received / total);
+        this.setState({ progress: received / total });
+      })
+      .then(res => {
+        this.setState({
+          progress: 100,
+          loading: false
+        });
+        ToastAndroid.showWithGravity(
+          "Your file has been downloaded to downloads folder!",
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM
+        );
+      });
+  };
+
+  async handleSaveOffline(event) {
     event.preventDefault();
 
     const { itemblog } = this.state;
@@ -97,6 +137,26 @@ export default class MatchDetScreen extends Component {
       .catch(err => {
         console.log(err);
       });
+
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: "Storage Permission",
+            message: "App needs access to memory to download the file "
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          this.actualDownload();
+        } else {
+          Alert.alert(
+            "Permission Denied!",
+            "You need to give storage permission to download the file"
+          );
+        }
+      } catch (err) {
+        console.warn(err);
+      }
   }
 
   handleAddNewComment(event) {
@@ -161,9 +221,6 @@ export default class MatchDetScreen extends Component {
         >
           <View>
             <ScrollView style={styles.scrollContainer}>
-              <TouchableOpacity onPress={this.handleSaveOffline}>
-                <Text>Simpan Offline</Text>
-              </TouchableOpacity>
               <Card
                 title={itemblog.name}
                 image={{
@@ -171,6 +228,18 @@ export default class MatchDetScreen extends Component {
                 }}
               >
                 <Text style={{ marginBottom: 10 }}>{itemblog.description}</Text>
+                <Button
+                      icon={<Icon name="code" color="#ffffff" />}
+                      backgroundColor="#03A9F4"
+                      onPress={this.handleSaveOffline}
+                      buttonStyle={{
+                        borderRadius: 0,
+                        marginLeft: 0,
+                        marginRight: 0,
+                        marginBottom: 0
+                      }}
+                      title="Simpan Offline"
+                    />  
               </Card>
 
               <View style={styles.styComment}>

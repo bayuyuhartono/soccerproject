@@ -4,7 +4,8 @@ import {
   Text,
   View,
   TouchableOpacity,
-  TextInput
+  TextInput,
+  Alert
 } from "react-native";
 import Logo from "../../src/components/Logo";
 import { StackActions, NavigationActions } from 'react-navigation';
@@ -30,7 +31,19 @@ export default class LoginScreen extends React.Component {
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => this.props.navigation.navigate('App'))
-      .catch(error => this.setState({ errorMessage: error.message }))
+      .catch(error => 
+        this.setState({ errorMessage: error.message }),
+        this.showAlert("Kesalahan", "Email atau Password yang anda masukan salah !!")
+      )
+  }
+
+  showAlert(title, body) {
+    Alert.alert(
+      title,
+      body,
+      [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+      { cancelable: false }
+    );
   }
 
   render() {

@@ -8,7 +8,7 @@ import {
   StyleSheet,
   ScrollView
 } from "react-native";
-import { Card, ListItem, Button, Icon } from "react-native-elements";
+import { Card, Button, Icon } from "react-native-elements";
 import * as dataws from "../../src/linknetwork.json";
 
 ShowCurrentDate = () => {

@@ -5,10 +5,10 @@ import {
   ActivityIndicator,
   View,
   Text,
-  FlatList,
-  TouchableOpacity
+  FlatList
 } from "react-native";
-import { Button } from "react-native-elements";
+import { Card, Button, Icon } from "react-native-elements";
+import RNFetchBlob from "rn-fetch-blob";
 import Database from '../../src/database';
 
 const db = new Database();
@@ -69,28 +69,54 @@ class RepoScreen extends Component {
       );
     }
 
+    let dirs = RNFetchBlob.fs.dirs;
+
     return (
-      <View style={styles.container}>
-        <ScrollView style={styles.scrollContainer}>
-          <FlatList
-            data={this.state.products}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => {
-                  this.props.navigation.navigate("RepoDetail", {
-                    prodId: `${item.prodId}`, 
-                  });
-                }}
-              >
-                <View key={item.prodId} style={styles.note}>
-                  <Text style={styles.noteText}>{item.prodName}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-            keyExtractor={({ prodId }, index) => prodId}
-          />
-        </ScrollView>
-      </View>
+      <ScrollView>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "stretch"
+          }}
+        >
+          <View>
+            <ScrollView style={styles.scrollContainer}>
+              <FlatList
+                data={this.state.products}
+                renderItem={({ item }) => (
+                  <Card
+                    title={item.prodName}
+                  >
+                    <Text style={{ marginBottom: 10 }}>
+                      {item.prodDesc.substring(0, 30)}
+                    </Text>
+                    <Button
+                      icon={<Icon name="code" color="#0292d4" />}
+                      backgroundColor="#03A9F4"
+                      onPress={() => {
+                        this.props.navigation.navigate("RepoDetail", {
+                          prodId: `${item.prodId}`
+                        });
+                      }}
+                      buttonStyle={{
+                        borderRadius: 0,
+                        marginLeft: 0,
+                        marginRight: 0,
+                        marginBottom: 0
+                      }}
+                      type="outline"
+                      title="VIEW NOW"
+                    />
+                  </Card>
+                )}
+                keyExtractor={(item, id) => id.toString()}
+              /> 
+            </ScrollView>
+          </View>
+        </View>
+      </ScrollView>
     );
   }
 }
@@ -119,7 +145,7 @@ const styles = StyleSheet.create({
   },
   note: {
     position: "relative",
-    padding: 20,
+    padding: 10,
     paddingRight: 100,
     borderBottomWidth: 2,
     borderBottomColor: "#ededed"
@@ -137,8 +163,5 @@ const styles = StyleSheet.create({
     top: 10,
     bottom: 10,
     right: 10
-  },
-  noteDeleteText: {
-    color: "white"
   }
 });

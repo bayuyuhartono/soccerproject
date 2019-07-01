@@ -2,14 +2,14 @@
     "auth" : {
         "post": "https://bayu.space/api/biodata/"
     },
-    "biodata" :{
-        "getbio": "https://bayu.space/api/biodata/"
-    },
     "blog" :{
         "getblog": "https://bayu.space/api/projects/",
         "postcomment": "https://bayu.space/api/tasks/"
     },
     "football" :{
         "getstandings": "https://bayu.space/api/standings/"
+    },
+    "biodata" :{
+        "getbio": "https://bayu.space/api/biodata/"
     }
 }
