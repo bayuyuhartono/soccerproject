@@ -25,6 +25,7 @@ export default class LoginScreen extends React.Component {
    };
 
    state = { email: '', password: '', errorMessage: null }
+   
    handleLogin = () => {
     const { email, password } = this.state
     firebase
@@ -32,8 +33,8 @@ export default class LoginScreen extends React.Component {
       .signInWithEmailAndPassword(email, password)
       .then(() => this.props.navigation.navigate('App'))
       .catch(error => 
-        this.setState({ errorMessage: error.message }),
-        this.showAlert("Kesalahan", "Email atau Password yang anda masukan salah !!")
+        this.setState({ errorMessage: error.message })
+        // , this.showAlert("Kesalahan", "Email atau Password yang anda masukan salah !!")
       )
   }
 

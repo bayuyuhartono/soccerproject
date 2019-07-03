@@ -36,7 +36,7 @@ export default class AlignItemsBasics extends Component {
     this.getListCall();
   }
 
-  getListCall() {
+  getListCall(event) {
     return axios
       .get(dataws.blog.getblog)
       .then(response => {
@@ -72,6 +72,7 @@ export default class AlignItemsBasics extends Component {
           }}
         >
           <View>
+          <Button title="Reload" onPress={this.getListCall} />
             <ScrollView style={styles.scrollContainer}>
               <FlatList
                 data={this.state.dataSource}

@@ -8,7 +8,6 @@ import {
   FlatList
 } from "react-native";
 import { Card, Button, Icon } from "react-native-elements";
-import RNFetchBlob from "rn-fetch-blob";
 import Database from '../../src/database';
 
 const db = new Database();
@@ -16,16 +15,7 @@ const db = new Database();
 class RepoScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      title: "Board List",
-      headerRight: (
-        <Button
-          buttonStyle={{ padding: 0, backgroundColor: "transparent" }}
-          icon={{ name: "add-circle", style: { marginRight: 0, fontSize: 28 } }}
-          onPress={() => {
-            navigation.push("Add");
-          }}
-        />
-      )
+      title: "Board List"
     };
   };
 
@@ -68,8 +58,6 @@ class RepoScreen extends Component {
         </View>
       );
     }
-
-    let dirs = RNFetchBlob.fs.dirs;
 
     return (
       <ScrollView>

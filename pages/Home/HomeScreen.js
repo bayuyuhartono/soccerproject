@@ -1,5 +1,5 @@
 import React from "react";
-import axios from 'axios';
+import axios from "axios";
 import {
   FlatList,
   ActivityIndicator,
@@ -55,10 +55,10 @@ export default class HomeScreen extends React.Component {
     /*
      * Triggered for data only payload in foreground
      * */
-    this.messageListener = firebase.messaging().onMessage(message => {
-      //process data message
-      console.log(JSON.stringify(message));
-    });
+    // this.messageListener = firebase.messaging().onMessage(message => {
+    //   //process data message
+    //   console.log(JSON.stringify(message));
+    // });
   }
 
   showAlert(title, body) {
@@ -89,8 +89,8 @@ export default class HomeScreen extends React.Component {
         dataSource: response.data.sort(
           (a, b) => a.overall_league_position - b.overall_league_position
         ) //sort data json fetch
-      })
-    })
+      });
+    });
   }
 
   render() {
